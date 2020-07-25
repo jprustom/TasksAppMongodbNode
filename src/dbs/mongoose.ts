@@ -1,4 +1,5 @@
 import mongoose = require("mongoose");
+const chalk=require('chalk')
 
 const databaseName:string='task-manager-api'
 mongoose.connect(`mongodb://127.0.0.1:27017/${databaseName}`,{
@@ -7,22 +8,15 @@ mongoose.connect(`mongodb://127.0.0.1:27017/${databaseName}`,{
     useUnifiedTopology: true
 })
 
-//Head Over To https://mongoosejs.com/docs/schematypes.html
-const taskSchema=new mongoose.Schema({
-    description:{
-        type:String
-    },
-    completed:{
-        type:Boolean
-    }
-})
-const Task=mongoose.model('Task',taskSchema)
+//List All Collections:
+mongoose.connection.on('open', function (ref) {
+    console.log(chalk.green.bold.underline('Connected to mongo server, current database collections are: '));
+    //trying to get collection names
+    mongoose.connection.db.listCollections().toArray(function (err, collections) {
+        collections.forEach(collection=>{console.log(chalk.green.bold(collection.name))})
+        console.log()
+        // mongoose.connection.close();
+    });
 
-const task=new Task({
-    description:"Learn a lot of new skills !",
-    completed:false
 })
 
-task.save().then(()=>{
-    console.log(task)
-}).catch(err=>{console.log(err)})

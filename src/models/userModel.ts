@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema({
         }
             }
     ]
+},{
+    timestamps:true
 }) 
 
 //https://mongoosejs.com/docs/tutorials/virtuals.html#populate

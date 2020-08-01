@@ -17,12 +17,29 @@ router.post('/',checkForAuthorization,async (req:any,res:any)=>{
     }
  
 })
+//GET /tasks?completed=false&sortBy=createdAt:desc
 router.get('/',checkForAuthorization,async (req:any,res:any)=>{
+    const match:any={}
+    const sort:any={}
+
+    if (req.query.completed)
+        match.completed=req.query.completed=='true'
+    if (req.query.sortBy){
+        const parts:string[]=req.query.sortBy.split(':')
+        const sortByProperty=parts[0] //createdAt
+        const sortByValue=parts[1] //desc
+        sort[sortByProperty]=sortByValue=='desc'?-1:1
+    }
     try{
-        // let tasks:any[]=await Task.find({})
-        // res.send(tasks)
-               //OR
-        await req.user.populate('tasks').exexPopulate()
+   
+        await req.user.populate({
+            path:'tasks',
+            match,
+            options:{
+                limit:parseInt(req.query.limit),
+                skip:parseInt(req.query.skip)
+            }
+        }).exexPopulate()
         res.send(req.user.tasks)
     }catch(e){
         res.status(404).send()

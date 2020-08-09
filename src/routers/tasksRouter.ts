@@ -37,7 +37,8 @@ router.get('/',checkForAuthorization,async (req:any,res:any)=>{
             match,
             options:{
                 limit:parseInt(req.query.limit),
-                skip:parseInt(req.query.skip)
+                skip:parseInt(req.query.skip),
+                sort
             }
         }).exexPopulate()
         res.send(req.user.tasks)

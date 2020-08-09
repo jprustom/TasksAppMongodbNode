@@ -2,7 +2,8 @@ const mongoose = require('mongoose')
 const validator = require('validator')
 const bcrypt=require('bcrypt')
 const jwt=require('jsonwebtoken')
-const Task=require('./taskModel')
+const Task=require('./taskModel')  
+const sharp = require('sharp')
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -48,7 +49,10 @@ const userSchema = new mongoose.Schema({
             required:true
         }
             }
-    ]
+    ],
+    avatar:{
+        type:Buffer
+    }
 },{
     timestamps:true
 }) 
@@ -65,6 +69,7 @@ userSchema.virtual('tasks',{
 userSchema.methods.toJSON=function(){
     const user=this
     const userAsJSON=user.toObject()
+    delete userAsJSON.avatar
     delete userAsJSON.password
     delete userAsJSON.tokens
     delete userAsJSON._id
@@ -98,8 +103,8 @@ userSchema.statics.findByCredentials= async (email: String,password:String)=>{
 }
 
 //hash password before calling save(), when creating or updating
-userSchema.pre('save',async function(next:Function){ //Can't use arrow function as second argument because we need to access this
-    
+userSchema.pre('save',async function(this:any,next:Function){ //Can't use arrow function as second argument because we need to access this
+
     const user=this
 
     if (user.isModified('password'))
@@ -109,7 +114,7 @@ userSchema.pre('save',async function(next:Function){ //Can't use arrow function 
 }) 
 
 //Delete tasks of user on delete
-userSchema.pre('remove',async function(next:Function){
+userSchema.pre('remove',async function(this:any,next:Function){
     const user=this
     await Task.deleteMany({
         owner:user._id

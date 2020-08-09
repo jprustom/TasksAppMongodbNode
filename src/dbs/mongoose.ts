@@ -1,8 +1,8 @@
 import mongoose = require("mongoose");
 const chalk=require('chalk')
 
-const databaseName:string='task-manager-api'
-mongoose.connect(`mongodb://127.0.0.1:27017/${databaseName}`,{
+
+mongoose.connect(`mongodb://127.0.0.1:27017/${process.env.DATABASE_NAME}`,{
     useNewUrlParser:true,
     useCreateIndex:true,
     useUnifiedTopology: true,
@@ -10,7 +10,7 @@ mongoose.connect(`mongodb://127.0.0.1:27017/${databaseName}`,{
 })
 
 //List All Collections:
-mongoose.connection.on('open', function (ref) {
+mongoose.connection.on('open', function () {
     console.log(chalk.green.bold.underline('\nConnected to mongo server, current database collections are: '));
     //trying to get collection names
     mongoose.connection.db.listCollections().toArray(function (err, collections) {

@@ -1,12 +1,18 @@
 //IMPORTS
 import { User } from "../models/userModel"
 import {checkForAuthorization} from '../handlers/auth'
+import { app } from "../app"
 const express=require('express')
 const router=express.Router()
+const sharp=require('sharp')
+
+
+
+
 
 //CREATE
 router.post("/",async(req:any,res:any)=>{
-    
+ 
     const user=new User(req.body)
 
     try{
@@ -88,5 +94,47 @@ router.delete('/me',checkForAuthorization,async(req: any,res: any)=>{
         res.status(400).send(e)
     }
 })
-
+//IMAGES
+const multer=require('multer')
+const upload=multer({
+    // dest:'avatars' REMOVE THIS LINE TO BE ABLE TO ACCESS req.file
+    limits:{
+        fileSize:1000000
+    },
+    fileFilter(req:any,file:any,cb:Function){
+        if (!file.originalname.match(/\.(jpeg|jpg|png)$/))
+            return cb(new Error('Please provide png/jpg/jpeg'))
+        
+        return cb(undefined,true)
+    }
+})
+//setting an avatar
+router.post('/me/avatar',checkForAuthorization,upload.single('avatar'),async(req:any,res:any)=>{
+   let buffer=await sharp(req.file.buffer).resize({width:250,height:250}).png().toBuffer()
+    req.user.avatar=buffer
+    await req.user.save()
+    res.status(200).send()
+},(error:any,req:any,res:any,next:Function)=>{
+    res.status(400).send(error.message)
+})
+//deleting an avatar
+router.delete('/me/avatar',checkForAuthorization,upload.single('avatar'),async(req:any,res:any)=>{
+    req.user.avatar=undefined
+    await req.user.save()
+    res.status(200).send()
+},(error:any,req:any,res:any,next:Function)=>{
+    res.status(400).send(error.message)
+})
+//displaying an avatar
+router.get('/:id/avatar',async(req:any,res:any)=>{
+    try{
+        const user=await User.findById(req.params.id)
+        if (!user || !user.avatar)
+            throw new Error()
+        res.set('Content-Type','image/png')
+        res.send(user.avatar)
+    }catch(e){
+        res.status(404).send()
+    }
+})
 module.exports=router

@@ -1,10 +1,10 @@
 //IMPORTING MODULES
 const express=require('express')
-import morgan from 'morgan';
+const morgan=require('morgan')
 const bodyParser=require('body-parser')
 
 //MIDDLEWARES
-const app = express();
+export const app = express();
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({extended:true}))
 app.use(express.json());
@@ -18,4 +18,4 @@ app.use('/users',usersRouter)
 app.use('/tasks',tasksRouter)
 
 //EXPORTING app SO WE CAN const app=require('app')
-module.exports=app;
+// module.exports=app;

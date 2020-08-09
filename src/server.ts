@@ -1,8 +1,9 @@
 const http = require('http');
-const app = require('./app')
+import {app} from './app'
 require('./dbs/mongoose')
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || process.env.PORT;
 
-const server = http.createServer(app);
+export const server = http.createServer(app);
 server.listen(port);
+
